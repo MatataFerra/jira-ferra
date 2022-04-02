@@ -1,8 +1,17 @@
-import '../styles/globals.css'
-import type { AppProps } from 'next/app'
+import "../styles/globals.css";
+import type { AppProps } from "next/app";
+import { NextUIProvider } from "@nextui-org/react";
+import { darkTheme } from "../themes";
+import { MenuProvider } from "../context/menu";
 
 function MyApp({ Component, pageProps }: AppProps) {
-  return <Component {...pageProps} />
+  return (
+    <MenuProvider>
+      <NextUIProvider theme={darkTheme}>
+        <Component {...pageProps} />
+      </NextUIProvider>
+    </MenuProvider>
+  );
 }
 
-export default MyApp
+export default MyApp;
