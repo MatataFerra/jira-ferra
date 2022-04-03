@@ -1,27 +1,45 @@
-import {
-  Container,
-  Row,
-  Grid,
-  Col,
-  Text,
-  Card,
-  Image,
-} from "@nextui-org/react";
-import { FC, useMemo } from "react";
-import { entries } from "../../mock/entries";
+import { FC, useMemo, useContext, DragEvent, useState } from "react";
+import { Row, Grid, Col, Text, Image } from "@nextui-org/react";
+import styles from "./styles/CardsList.module.css";
 import { CardToDo } from "./CardTodo";
 import { EntryStatus } from "../../interfaces/entryInterface";
-import { PlusSVG } from "./PlusSVG";
+import { EntriesContext } from "../../context/entries";
+import { UIContext } from "../../context/ui";
+import { ModalAdd } from "./ModalAdd";
 
 interface Props {
   status: EntryStatus;
 }
 
 export const CardList: FC<Props> = ({ status }) => {
+  const [visible, setVisible] = useState(false);
+  const { entries, updateEntry } = useContext(EntriesContext);
+  const { isDragging, endDragging } = useContext(UIContext);
   const entriesByStatus = useMemo(
     () => entries.filter((entry) => entry.status === status),
-    [status]
+    [status, entries]
   );
+
+  const openModal = () => {
+    setVisible(true);
+  };
+
+  const closeModal = () => {
+    setVisible(false);
+  };
+
+  const onDropEntry = (event: DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    const entryId = event.dataTransfer.getData("text");
+    const entry = entries.find((entry) => entry._id === entryId)!;
+    entry.status = status;
+    updateEntry(entry);
+    endDragging();
+  };
+
+  const allowDrop = (event: DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+  };
 
   const statusHeader = {
     pending: "Pendientes",
@@ -31,21 +49,35 @@ export const CardList: FC<Props> = ({ status }) => {
 
   return (
     <Grid.Container
-      justify="space-between"
-      css={{ backgroundColor: "$accents8", w: "30%" }}
+      css={{
+        backgroundColor: "$accents8",
+        m: 8,
+        w: "100%",
+        "@sm": { flexBasis: "30%" },
+      }}
+      onDrop={onDropEntry}
+      onDragOver={allowDrop}
+      className={isDragging ? styles.dragging : ""}
     >
       <Grid xs={12}>
         <Col>
-          <Row css={{ backgroundColor: "$accents7", p: 6 }}>
-            <Text h2 color="#000">
+          <Row
+            className={isDragging ? styles.headerDraggin : ""}
+            css={{ backgroundColor: "$accents7", p: 6 }}
+          >
+            <Text
+              h2
+              color="#000"
+              className={isDragging ? styles.titleDraggin : ""}
+            >
               {statusHeader[status]}
             </Text>
           </Row>
-          <Row css={{ p: 6 }}>
+          <Col css={{ p: 6 }}>
             {entriesByStatus.map((entry) => {
               return <CardToDo key={entry._id} entry={entry} />;
             })}
-          </Row>
+          </Col>
         </Col>
       </Grid>
       {statusHeader[status] === "Pendientes" && (
@@ -56,7 +88,9 @@ export const CardList: FC<Props> = ({ status }) => {
             width={"1.5rem"}
             height={"2rem"}
             css={{ borderRadius: 0, cursor: "pointer" }}
+            onClick={openModal}
           />
+          <ModalAdd visible={visible} onClose={closeModal} />
         </Grid>
       )}
     </Grid.Container>

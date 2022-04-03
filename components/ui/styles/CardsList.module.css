@@ -1,0 +1,15 @@
+.dragging {
+  background-color: rgba(0, 0, 0, 0.2);
+  border: 1px dashed #fff;
+  transition: all ease 0.3s;
+}
+
+.headerDraggin {
+  background-color: rgba(0, 0, 0, 0.2);
+  transition: all ease 0.3s;
+}
+
+.titleDraggin {
+  color: #fff;
+  transition: all ease 0.3s;
+}
