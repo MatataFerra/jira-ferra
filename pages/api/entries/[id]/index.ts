@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { db } from "../../../../database";
 import { Entry, IEntry } from "../../../../models";
@@ -29,6 +30,11 @@ export default function handler(
 
 const updateEntry = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
   const { id } = req.query;
+
+  if (!mongoose.isValidObjectId(id)) {
+    return res.status(400).json({ message: "Invalid id" });
+  }
+
   await db.connect();
 
   const entryToUpdate = await Entry.findById(id);
