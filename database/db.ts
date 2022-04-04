@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { ConnectOptions } from "mongoose";
 
 /*
  * 0 = disconnected
@@ -9,6 +9,10 @@ import mongoose from "mongoose";
 
 const mongoConnection = {
   isConnected: 0,
+};
+
+const options: ConnectOptions = {
+  dbName: "jiradb",
 };
 
 export const connect = async () => {
@@ -28,7 +32,7 @@ export const connect = async () => {
     await mongoose.disconnect();
   }
 
-  await mongoose.connect(process.env.MONGO_URL!);
+  await mongoose.connect(process.env.MONGO_URL!, options);
   mongoConnection.isConnected = 1;
   console.log("MongoDB is connected");
 };
